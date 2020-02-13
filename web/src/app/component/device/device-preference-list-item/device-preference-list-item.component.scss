@@ -1,0 +1,46 @@
+.list-item {
+    height: 80px;
+}
+.diff {
+    // color: #3c763d;
+    background-color: #dff0d8;
+}
+.error {
+    // color: #a94442;
+    background-color: #f2dede;
+}
+
+.parameter-container {
+    width: 240px;
+    margin-right: 16px;
+    .parameter-title {
+        margin: 0 0 4px 0;
+        font-size: 12px;
+        color: #888888;
+    }
+    .parameter-value {
+        font-size: 20px;
+        color: #3c3c3c;
+    }
+}
+
+.form-container {
+    margin-right: 8px;
+}
+
+mat-form-field {
+    width: 240px;
+}
+.slider-container {
+    width: 240px;
+    display: flex;
+    align-items: center;
+    .slider-value {
+        flex: 1;
+    }
+    mat-slider {
+        width: 160px;
+        padding-left: 0;
+        padding-right: 0;
+    }
+}

@@ -1,0 +1,13 @@
+<mat-accordion multi="true">
+    <mat-expansion-panel *ngFor="let group of groups" [expanded]="true">
+        <mat-expansion-panel-header>
+            <mat-panel-title translate>{{ group.grouplabel }}</mat-panel-title>
+        </mat-expansion-panel-header>
+        <mat-list>
+            <app-device-preference-list-item
+                *ngFor="let param of group.params"
+                [param]="param">
+            </app-device-preference-list-item>
+        </mat-list>
+    </mat-expansion-panel>
+</mat-accordion>

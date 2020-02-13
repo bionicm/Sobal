@@ -1,0 +1,145 @@
+{
+    "ParamService": {
+        "readUuid": "",
+        "writeUuid": "",
+        "groups": [
+            {
+                "grouplabel": "group1",
+                "params": [
+                    {
+                        "paramaddress": "0x0000",
+                        "paramlabel": "param1",
+                        "widgettype": {
+                            "type": "textbox",
+                            "default": 0,
+                            "min": 0, 
+                            "max": 100,
+                            "unit": "m"
+                        }
+                    },
+                    {
+                        "paramaddress": "0x0001",
+                        "paramlabel": "param2",
+                        "widgettype": {
+                            "type": "slider",
+                            "default": 50,
+                            "min": 0,
+                            "max": 100,
+                            "step": 1,
+                            "unit": "Kg"
+                        }
+                    },
+                    {
+                        "paramaddress": "0x0002",
+                        "paramlabel": "param3",
+                        "widgettype": {
+                            "type": "combobox",
+                            "default": 1,
+                            "option": [
+                                {"name": "name1", "value": 1},
+                                {"name": "name2", "value": 2}
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "grouplabel": "group2",
+                "params": [
+                    {
+                        "paramaddress": "0x0003",
+                        "paramlabel": "param4",
+                        "widgettype": {
+                            "type": "textbox",
+                            "default": 0,
+                            "min": 0, 
+                            "max": 10,
+                            "step": 0.1
+                        }
+                    },
+                    {
+                        "paramaddress": "0x0004",
+                        "paramlabel": "param5",
+                        "widgettype": {
+                            "type": "slider",
+                            "default": 50,
+                            "min": 0,
+                            "max": 1000,
+                            "step": 10
+                        }
+                    },
+                    {
+                        "paramaddress": "0x0005",
+                        "paramlabel": "param6",
+                        "widgettype": {
+                            "type": "combobox",
+                            "default": 1,
+                            "option": [
+                                {"name": "value1", "value": 1},
+                                {"name": "value2", "value": 2}
+                            ]
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    "ModeService": {
+        "targetUuid": "",
+        "params": [
+          {
+            "uuid": "",
+            "paramlabel": "CurrentMode",
+            "widgettype": {
+                "type": "readonly",
+                "option": [
+                    {"name": "Initialize", "value": "0x0000"},
+                    {"name": "Debug", "value": "0x0100"},
+                    {"name": "ParameterUpdate", "value": "0x0200"},
+                    {"name": "FirmwareUpdate", "value": "0x0300"},
+                    {"name": "Charging", "value": "0x0400"},
+                    {"name": "Active", "value": "0x0600"},
+                    {"name": "Eco", "value": "0x0700"}
+                ]
+            }
+          }
+        ]
+    },
+    "StatusService": {
+        "params": [
+          {
+            "uuid": "",
+            "paramlabel": "BatteryRemaining",
+            "widgettype": {
+              "type": "readonly",
+              "decimalplaces": 0,
+              "unit": "%"
+            }
+          },
+          {
+            "uuid": "",
+            "paramlabel": "MotorTemperature",
+            "widgettype": {
+              "type": "readonly",
+              "decimalplaces": 1,
+              "unit": "℃"
+            }
+          },
+          {
+            "uuid": "",
+            "paramlabel": "TotalOperatingTime",
+            "widgettype": {
+              "type": "readonly"
+            }
+          },
+          {
+            "uuid": "",
+            "paramlabel": "TotalRotation",
+            "widgettype": {
+              "type": "readonly",
+              "decimalplaces": 0
+            }
+          }
+        ]
+    }
+}

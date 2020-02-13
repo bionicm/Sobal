@@ -1,0 +1,11 @@
+
+<mat-card class="list-card">
+
+<mat-nav-list>
+    <app-device-list-item *ngFor="let device of devices$ | async"
+        [device]="device"
+        (selected)="onSelected($event)">
+    </app-device-list-item>
+</mat-nav-list>
+
+</mat-card>

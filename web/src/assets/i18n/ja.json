@@ -1,0 +1,32 @@
+{
+    "DeviceList": {
+    },
+    "Pin": {
+        "title": "PINコード入力"
+    },
+    "DevicePreference": {
+        "gettingAllParameter": "更新中...",
+        "lastUpdateAllParameter": "{{value}}に更新",
+        "import": "インポート",
+        "export": "エクスポート",
+        "reload": "更新",
+        "submit": "設定反映",
+        "default": "初期値"
+    },
+
+    "group1": "グループ1",
+    "group2": "グループ2",
+    "param1": "パラメータ1",
+    "param2": "パラメータ2",
+    "param3": "パラメータ3",
+    "param4": "パラメータ4",
+    "param5": "パラメータ5",
+    "param6": "パラメータ6",
+    "value1": "値1",
+    "value2": "値2",
+
+    "BatteryRemaining": "バッテリ残量",
+    "MotorTemperature": "モータ温度",
+    "TotalOperatingTime": "出荷されてからの総稼働時間",
+    "TotalRotation": "出荷されてからのモータ総回転数"
+}

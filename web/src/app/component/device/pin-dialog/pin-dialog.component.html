@@ -1,0 +1,10 @@
+<h2 mat-dialog-title translate>Pin.title</h2>
+<mat-dialog-content>
+    <mat-form-field>
+        <input matInput autocomplete="off" [(ngModel)]="pincode" (keydown.enter)="onOK()">
+    </mat-form-field>
+</mat-dialog-content>
+<div mat-dialog-actions>
+    <button mat-button color="basic" mat-dialog-close translate>Cancel</button>
+    <button mat-button color="primary" (click)="onOK()" translate>OK</button>
+</div>

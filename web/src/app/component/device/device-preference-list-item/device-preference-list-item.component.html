@@ -1,0 +1,59 @@
+<mat-list-item class="list-item"
+    [class.diff]="isEdited"
+    [class.error]="isError">
+    <div class="parameter-container">
+        <p class="parameter-title" translate>{{ param.paramlabel }}</p>
+        <div class="parameter-vaule">
+            <span *ngIf="widgettype.type === widgetComponentType.Combobox; else valueBlock" translate>
+                {{ param.currentvalue | optionName: widgettype.option }}
+            </span>
+            <ng-template #valueBlock>
+                <span>{{ param.currentvalue || "--" }}</span>
+            </ng-template>
+            <span>{{ widgettype.unit }}</span>
+        </div>
+    </div>
+
+    <div class="form-container">
+        <ng-container *ngIf="widgettype.type === widgetComponentType.Textbox">
+            <mat-form-field>
+                <input matInput
+                    type="number"
+                    autocomplete="off"
+                    [(ngModel)]="param.editedvalue"
+                    [min]="widgettype.min"
+                    [max]="widgettype.max"
+                    [step]="widgettype.step"
+                    [disabled]="isDisabled">
+                <span matSuffix>{{ widgettype.unit }}</span>
+            </mat-form-field>
+        </ng-container>
+        <ng-container *ngIf="widgettype.type === widgetComponentType.Slider">
+            <div class="slider-container">
+                <span class="slider-value">{{ matslider.value }}{{ widgettype.unit }}</span>
+                <mat-slider class="slider" #matslider
+                    [(value)]="param.editedvalue"
+                    [min]="widgettype.min"
+                    [max]="widgettype.max"
+                    [step]="widgettype.step"
+                    [disabled]="isDisabled">
+                </mat-slider>
+            </div>
+        </ng-container>
+        <ng-container *ngIf="widgettype.type === widgetComponentType.Combobox">
+            <mat-form-field>
+                <mat-select [(value)]="param.editedvalue" [disabled]="isDisabled">
+                    <mat-option *ngFor="let option of widgettype.option" [value]="option.value">
+                        <span translate>{{ option.name }}</span>
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </ng-container>
+    </div>
+
+    <div class="button-container">
+        <button mat-button (click)="default()" [disabled]="isDisabledDefault">
+            <span translate>DevicePreference.default</span>
+        </button>
+    </div>
+</mat-list-item>

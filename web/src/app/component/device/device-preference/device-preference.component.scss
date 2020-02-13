@@ -1,0 +1,29 @@
+.container {
+    width: 100%;
+    display: flex;
+
+    .side-bar {
+        min-width: 300px;
+    }
+    .contents {
+        flex: 1;
+        .spacer {
+            flex: 1 1 auto;
+        }
+        button {
+            margin-left: 14px;
+        }
+    }
+}
+
+.preference-list {
+    width: 620px;
+    margin: 0 auto;
+
+    .last-update {
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        color: #484848;
+    }
+}

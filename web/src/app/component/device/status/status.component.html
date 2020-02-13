@@ -1,0 +1,24 @@
+<div class="container">
+    <p class="device-name">{{ deviceName }}</p>
+
+    <div class="mode-container">
+        <div class="mode-list" *ngFor="let param of widget?.ModeService.params">
+            <p class="mode-title" translate>{{ param.paramlabel }}</p>
+            <div>
+                <span class="mode-value">{{ (param.currentvalue | optionName: param.widgettype.option ) || "--" }}</span>
+            </div>
+        </div>
+        <mat-divider></mat-divider>
+    </div>
+
+    <div class="status-container">
+        <div class="status-list" *ngFor="let param of widget?.StatusService.params">
+            <p class="status-title" translate>{{ param.paramlabel }}</p>
+            <div>
+                <span class="status-value">{{ (param.currentvalue | dicimalPlace: param.widgettype.decimalplaces ) || "--" }}</span>
+                <span class="status-value">{{ param.widgettype.unit }}</span>
+            </div>
+        </div>
+        <mat-divider></mat-divider>
+    </div>
+</div>
