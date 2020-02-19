@@ -1,6 +1,7 @@
 <mat-list-item class="list-item"
-    [class.diff]="isEdited"
-    [class.error]="isError">
+    [class.warn]="!isValidateError && !isEdited && isParameterError"
+    [class.diff]="!isValidateError && isEdited"
+    [class.error]="isValidateError">
     <div class="parameter-container">
         <p class="parameter-title" translate>{{ param.paramlabel }}</p>
         <div class="parameter-vaule">

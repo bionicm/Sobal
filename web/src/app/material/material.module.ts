@@ -9,10 +9,12 @@ import {
   MatInputModule,
   MatListModule,
   MatProgressSpinnerModule,
+  MatSpinner,
   MatSelectModule,
   MatSliderModule,
   MatToolbarModule,
 } from '@angular/material/';
+import { OverlayModule } from '@angular/cdk/overlay';
 
 @NgModule({
   declarations: [],
@@ -30,6 +32,10 @@ import {
     MatSelectModule,
     MatSliderModule,
     MatToolbarModule,
+    OverlayModule
+  ],
+  entryComponents: [
+    MatSpinner
   ]
 })
 export class MaterialModule { }

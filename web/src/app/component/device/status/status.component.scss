@@ -1,12 +1,25 @@
 .container {
-    padding: 20px 20px 0 20px;
+    padding: 0 20px 0 20px;
     height: 100%;
     background-color: #fff;
 }
-.device-name {
-    font-size: 28px;
-    margin: 0;
+
+.title-container {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    .device-name {
+        flex: 1;
+        font-size: 24px;
+        margin: 0 8px 0 0;
+    }
+    button {
+        width: 44px;
+        height: 44px;
+        margin-right: -10px;
+    }
 }
+
 .status-container {
     margin-top: 20px;
     .status-list {

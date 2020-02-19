@@ -1,5 +1,10 @@
 <div class="container">
-    <p class="device-name">{{ deviceName }}</p>
+    <div class="title-container">
+        <p class="device-name">{{ deviceName }}</p>
+        <button mat-icon-button (click)="onClickedDeselect()">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
 
     <div class="mode-container">
         <div class="mode-list" *ngFor="let param of widget?.ModeService.params">

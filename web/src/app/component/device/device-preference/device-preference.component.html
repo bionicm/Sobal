@@ -1,5 +1,5 @@
 <div class="container">
-    <app-status class="side-bar"></app-status>
+    <app-status class="side-bar" (deselect)="deselectDevice()"></app-status>
     <div class="contents">
         <mat-toolbar>
             <button mat-flat-button mat-button (click)="import()">
