@@ -98,6 +98,7 @@
                     {"name": "ParameterUpdate", "value": "0x0200"},
                     {"name": "FirmwareUpdate", "value": "0x0300"},
                     {"name": "Charging", "value": "0x0400"},
+                    {"name": "Error", "value": "0x0500"},
                     {"name": "Active", "value": "0x0600"},
                     {"name": "Eco", "value": "0x0700"}
                 ]

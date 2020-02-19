@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { interval, Observable, BehaviorSubject, from, zip, of, throwError } from 'rxjs';
-import { startWith, flatMap, map, concatMap, tap } from 'rxjs/operators';
+import { startWith, flatMap, map, concatMap, tap, delay, repeat, finalize, catchError } from 'rxjs/operators';
 
 import { Device } from '../interface/device';
 import { ApiService } from './api.service';
 import { Widget, WidgetParam, WidgetGroup } from '../interface/widget';
 import { AppConst } from '../const/const';
+import { Output } from '../interface/output';
+import { ApplicationService } from './application.service';
+import { ErrorService } from './error.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,15 +20,19 @@ export class DeviceService {
 
   // widget.
   public widget: Widget;
-  private ungroupParams: WidgetParam[];
+  public ungroupParams: WidgetParam[];
 
   // Last time to get all parameters.
   private lastUpdated = new BehaviorSubject<Date>(undefined);
   public lastUpdated$ =  this.lastUpdated.asObservable();
 
+  public errorParameterAdresses: string[] = [];
+
   constructor(
     private http: HttpClient,
-    private apiService: ApiService
+    private app: ApplicationService,
+    private apiService: ApiService,
+    private errorService: ErrorService
   ) { }
 
   get devices$(): Observable<Device[]> {
@@ -37,27 +44,6 @@ export class DeviceService {
           return this.sortDevices(devices);
         })
       );
-  }
-
-  statuses(): void {
-    const { address } = this.device;
-
-    // TODO
-    this.widget.ModeService.params[0].currentvalue = "0x0100";
-
-    // TODO Polling
-    from(this.widget.StatusService.params).pipe(
-      concatMap(widgetParam => {
-        return zip(of(widgetParam), this.apiService.getStatus(address, widgetParam.uuid));
-      })
-    ).subscribe(param => {
-      console.log('PARAM: ', param);
-      if (param[0] && param[1]) {
-        param[0].currentvalue = param[1].value;
-      }
-    }, error => {
-      console.log('error');
-    });
   }
 
   setDevice(device: Device): void {
@@ -82,36 +68,96 @@ export class DeviceService {
     );
   }
 
-  loadAllWidgetParameters() {
+  pollingLoadStatus$() {
+    return this.mode$().pipe(
+      concatMap(() => this.status$()),
+      delay(AppConst.deviceStatusInterval),
+      repeat()
+    );
+  }
+
+  mode$() {
+    const { address } = this.device;
+    const mergeMode = data => {
+      if (data[0] && data[1]) {
+        data[0].currentvalue = data[1].value;
+      }
+    };
+    return from(this.widget.ModeService.params).pipe(
+      concatMap(modeParam => {
+        // zip: [widgetMode, deviceMode]
+        return zip(
+          of(modeParam),
+          this.apiService.getMode(address, modeParam.uuid)
+        );
+      }),
+      tap(mergeMode)
+    );
+  }
+
+  status$() {
+    const { address } = this.device;
+    const mergeStatus = data => {
+      if (data[0] && data[1]) {
+        data[0].currentvalue = data[1].value;
+      }
+    };
+    return from(this.widget.StatusService.params).pipe(
+      concatMap(widgetParam => {
+        // zip: [widget, deviceStatus]
+        return zip(
+          of(widgetParam),
+          this.apiService.getStatus(address, widgetParam.uuid)
+        );
+      }),
+      tap(mergeStatus)
+    );
+  }
+
+  loadAllWidgetParameters(): void {
     this.loadWidgetParameters(this.ungroupParams);
   }
 
   updateEditedParameters(): void {
     const { address } = this.device;
-    const editedParams = this.filterEditedParams();
+    const editedParams = this.filterEditedParameters();
     if (editedParams.length === 0) {
       return;
     }
 
+    this.app.startLoading('setMode');
     this.apiService.setMode(address, this.widget.ModeService.targetUuid, {
       value: AppConst.parameterUpdateMode
-    }).subscribe(data => {
+    }).pipe(
+      finalize(() => this.app.stopLoading('setMode'))
+    ).subscribe(data => {
       const parameters = editedParams.map(p => {
         return {
           paramaddress: p.paramaddress,
           value: p.editedvalue
         };
       });
+      this.app.startLoading('updateParameter');
       this.apiService.setParameters(
         address,
         this.widget.ParamService.writeUuid,
-        parameters)
-      .subscribe(() => {
+        parameters
+      ).pipe(
+        finalize(() => this.app.stopLoading('updateParameter'))
+      ).subscribe(() => {
         this.loadWidgetParameters(editedParams);
       });
     }, error => {
-      // TODO: 
-      console.log('Update Mode error');
+      this.errorService.warning('Error.parameterUpdateMode');
+    });
+  }
+
+  mergeParams(params: Output): void {
+    params.ParamService.params.forEach(param => {
+      const widgetParam = this.ungroupParams.find(n => n.paramaddress === param.paramaddress);
+      if (widgetParam) {
+        widgetParam.editedvalue = param.value;
+      }
     });
   }
 
@@ -132,13 +178,16 @@ export class DeviceService {
     return params;
   }
 
-  private filterEditedParams(): WidgetParam[] {
+  private filterEditedParameters(): WidgetParam[] {
     return this.ungroupParams.filter(p => {
-      return p.currentvalue !== p.editedvalue;
+      return p.editedvalue !== undefined
+        && p.editedvalue !== null
+        && p.currentvalue !== p.editedvalue;
     });
   }
 
   private loadWidgetParameters(params: WidgetParam[]): void {
+    this.app.startLoading('loadParameter');
     from(params).pipe(
       concatMap(widgetParam => {
         return zip(of(widgetParam),
@@ -146,21 +195,36 @@ export class DeviceService {
             this.device.address,
             this.widget.ParamService.writeUuid,
             this.widget.ParamService.readUuid,
-            widgetParam.paramaddress)
-        )
+            widgetParam.paramaddress));
+      }),
+      finalize(() => {
+        this.app.stopLoading('loadParameter');
       })
     ).subscribe(data => {
-      if (data[0] && data[1]) {
-        if (data[0].paramaddress === data[1].paramaddress) {
-          data[0].currentvalue = data[1].value;
-          data[0].editedvalue = data[1].value;
-        }
-      } else {
-        console.log('get parameter error', data[0].paramaddress);
+      if (data[0] && data[1] && data[0].paramaddress === data[1].paramaddress) {
+        data[0].currentvalue = data[1].value;
+        data[0].editedvalue = data[1].value;
       }
     }, error => {
-      console.log('error');
     }, () => {
+      this.errorCheck();
+    });
+  }
+
+  private errorCheck(): void {
+    this.app.startLoading('errorCheck');
+
+    this.apiService.getErrorParameters(
+      this.device.address,
+      this.widget.ParamService.writeUuid,
+      this.widget.ParamService.readUuid
+    ).pipe(
+      finalize(() => this.app.stopLoading('errorCheck'))
+    ).subscribe(data => {
+      this.errorParameterAdresses = data.addresses;
+      if (data.addresses.length > 0) {
+        this.errorService.warning('Error.paramAddress', {address: data.addresses});
+      }
       this.lastUpdated.next(new Date());
     });
   }

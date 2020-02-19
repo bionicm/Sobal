@@ -1,10 +1,16 @@
 {
+    "OK": "OK",
+    "Close": "閉じる",
+    "Cancel": "キャンセル",
+
     "DeviceList": {
+        "title": "デバイス一覧"
     },
     "Pin": {
         "title": "PINコード入力"
     },
     "DevicePreference": {
+        "title": "デバイス設定",
         "gettingAllParameter": "更新中...",
         "lastUpdateAllParameter": "{{value}}に更新",
         "import": "インポート",
@@ -12,6 +18,21 @@
         "reload": "更新",
         "submit": "設定反映",
         "default": "初期値"
+    },
+    "Error": {
+        "server": "サーバーとの通信に失敗しました。",
+        "badRequest": "リクエストが不正です。",
+        "unauthorized": "認証に失敗しました。",
+        "notFound": "リクエストURLが不正です。",
+        "methodNotAllowed": "リクエストメソッドが不正です。",
+        "requestTimeout": "デバイスとの接続に失敗しました。<br>最初からやり直してください。",
+        "internalServerError": "サーバーの処理に失敗しました。",
+
+        "loadWidgetJson": "widget.jsonの読み込みに失敗しました。",
+        "paramAddress": "設定値に異常があります。<br>address={{address}}",
+        "parameterUpdateMode": "STANCEモードにセットしてください。",
+        "loadImportFile": "ファイルの読み込みに失敗しました。",
+        "__end": ""
     },
 
     "group1": "グループ1",

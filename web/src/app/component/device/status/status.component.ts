@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 
 import { DeviceService } from 'src/app/service/device.service';
 import { Widget } from 'src/app/interface/widget';
+
 
 @Component({
   selector: 'app-status',
@@ -9,9 +10,10 @@ import { Widget } from 'src/app/interface/widget';
   styleUrls: ['./status.component.scss']
 })
 export class StatusComponent implements OnInit {
-
+  @Output() deselect: EventEmitter<void> = new EventEmitter<void>();
   deviceName: string;
   widget: Widget = this.deviceService.widget;
+
 
   constructor(
     private deviceService: DeviceService
@@ -21,5 +23,9 @@ export class StatusComponent implements OnInit {
     if (this.deviceService.device) {
       this.deviceName = this.deviceService.device.name;
     }
+  }
+
+  onClickedDeselect() {
+    this.deselect.emit();
   }
 }
