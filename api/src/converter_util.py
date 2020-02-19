@@ -1,5 +1,4 @@
 import json
-import traceback
 from struct import *
 
 class ConverterUtil:
@@ -11,7 +10,7 @@ class ConverterUtil:
         return cls.__instance
 
     def to_json(self, application_exception):
-        return {'error_code': hex(application_exception.error_code)}
+        return {'error_code': application_exception.error_code}
 
     def to_bytes(self, value):
         return pack('>B', value)

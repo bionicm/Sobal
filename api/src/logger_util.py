@@ -23,7 +23,3 @@ class LoggerUtil:
     
     def error(self, message):
         self.logger.error(message)
-
-    def get(self):
-        # TODO:ログ取得
-        pass

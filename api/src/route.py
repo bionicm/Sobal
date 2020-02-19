@@ -1,7 +1,6 @@
 import sys
 import os.path
 sys.path.append('lib')
-import traceback
 import responder
 from device_facade import DeviceFacade
 from application_exception import ApplicationExcepiton
@@ -21,8 +20,11 @@ async def devices(req, resp):
         body = await DeviceFacade().get_devices(req)
         resp.media = body
         resp.status_code = 200
-    except Exception as exception:
-        error_handler(resp, exception)
+    except ApplicationExcepiton as app_exception:
+        error_handler(resp, app_exception)
+    except:
+        app_exception = ApplicationExcepiton.create(0x01FF, 'cause unknown error.')
+        error_handler(resp, app_exception)
 
 @api.route('/v1/devices/{device_address}/params/{param_address}')
 async def device_param(req, resp, device_address, param_address):
@@ -30,10 +32,11 @@ async def device_param(req, resp, device_address, param_address):
         body = await DeviceFacade().get_device_param(req, f'{device_address}', f'{param_address}')
         resp.media = body
         resp.status_code = 200
-    except ApplicationExcepiton as e:
-        # TODO:エラー処理
-        print(traceback.format_exc())
-        pass
+    except ApplicationExcepiton as app_exception:
+        error_handler(resp, app_exception)
+    except:
+        app_exception = ApplicationExcepiton.create(0x02FF, 'cause unknown error.')
+        error_handler(resp, app_exception)
 
 @api.route('/v1/devices/{device_address}/statuses')
 async def device_status(req, resp, device_address):
@@ -41,20 +44,22 @@ async def device_status(req, resp, device_address):
         body = await DeviceFacade().get_device_status(req, f'{device_address}')
         resp.media = body
         resp.status_code = 200
-    except ApplicationExcepiton as e:
-        # TODO:エラー処理
-        print(traceback.format_exc())
-        pass
+    except ApplicationExcepiton as app_exception:
+        error_handler(resp, app_exception)
+    except:
+        app_exception = ApplicationExcepiton.create(0x03FF, 'cause unknown error.')
+        error_handler(resp, app_exception)
 
 @api.route('/v1/devices/{device_address}/params')
 async def update_device_params(req, resp, device_address):
     try:
         await DeviceFacade().update_device_params(req, f'{device_address}')
         resp.status_code = 200
-    except ApplicationExcepiton as e:
-        # TODO:エラー処理
-        print(traceback.format_exc())
-        pass
+    except ApplicationExcepiton as app_exception:
+        error_handler(resp, app_exception)
+    except:
+        app_exception = ApplicationExcepiton.create(0x06FF, 'cause unknown error.')
+        error_handler(resp, app_exception)
 
 @api.route('/v1/devices/{device_address}/modes')
 async def device_mode(req, resp, device_address):
@@ -62,18 +67,27 @@ async def device_mode(req, resp, device_address):
         body = await DeviceFacade().device_mode(req, f'{device_address}')
         resp.media = body
         resp.status_code = 200
-    except ApplicationExcepiton as e:
-        # TODO:エラー処理
-        print(traceback.format_exc())
-        pass
+    except ApplicationExcepiton as app_exception:
+        error_handler(resp, app_exception)
+    except:
+        app_exception = ApplicationExcepiton.create(0x05FF, 'cause unknown error.')
+        error_handler(resp, app_exception)
+
+@api.route('/v1/devices/{device_address}/errorparams')
+async def error_params(req, resp, device_address):
+    try:
+        body = await DeviceFacade().get_error_params(req, f'{device_address}')
+        resp.media = body
+        resp.status_code = 200
+    except ApplicationExcepiton as app_exception:
+        error_handler(resp, app_exception)
+    except:
+        app_exception = ApplicationExcepiton.create(0x04FF, 'cause unknown error.')
+        error_handler(resp, app_exception)
 
 def error_handler(resp, exception):
-    if isinstance(exception, ApplicationExcepiton):
-        resp.media = ConverterUtil().to_json(exception)
-        resp.status_code = exception.http_status_code
-    else:
-        # TODO:エラー処理
-        resp.status_code = 500
+    resp.media = ConverterUtil().to_json(exception)
+    resp.status_code = exception.http_status_code
 
 
 if __name__ == "__main__":
