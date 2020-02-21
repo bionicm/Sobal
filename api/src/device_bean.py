@@ -1,4 +1,5 @@
 class DeviceBean:
+
     def __init__(self, name, address, rssi):
         self.__name = name
         self.__address = address
