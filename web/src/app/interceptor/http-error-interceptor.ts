@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
-import { retryWhen, flatMap } from 'rxjs/operators';
+import { retryWhen, flatMap, delay } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class HttpErrorInterceptor implements HttpInterceptor {
     // retry count does not include the first try.
-    private readonly retryCount = 2;
-    private readonly retryStatusCodes = [408];
+    private readonly retryCount = 3;
+    private readonly retryStatusCodes = [504];
+    private readonly retryWait = 1000; // ms
 
     constructor() { }
 
@@ -28,13 +29,13 @@ export class HttpErrorInterceptor implements HttpInterceptor {
         return errors.pipe(
             flatMap((res, i) => {
                 if (this.retryStatusCodes.findIndex(n => n === res.status) >= 0 ) {
-                    if (i <= this.retryCount) {
-                        // console.log('retry', i);
+                    if (i < this.retryCount) {
                         return of(res);
                     }
                 }
                 return throwError(res);
-            })
+            }),
+            delay(this.retryWait)
         );
     }
 }

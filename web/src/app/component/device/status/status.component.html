@@ -10,7 +10,7 @@
         <div class="mode-list" *ngFor="let param of widget?.ModeService.params">
             <p class="mode-title" translate>{{ param.paramlabel }}</p>
             <div>
-                <span class="mode-value">{{ (param.currentvalue | optionName: param.widgettype.option ) || "--" }}</span>
+                <span class="mode-value" translate>{{ (param.currentvalue | optionName: param.widgettype.option ) || "--" }}</span>
             </div>
         </div>
         <mat-divider></mat-divider>

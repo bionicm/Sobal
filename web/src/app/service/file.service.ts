@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { AppConst } from '../const/const';
 import { Output } from '../interface/output';
 import { DeviceService } from './device.service';
-import { catchError } from 'rxjs/operators';
 import { ErrorService } from './error.service';
 
 @Injectable({
@@ -15,6 +14,9 @@ export class FileService {
     private errorService: ErrorService
   ) { }
 
+  /**
+   * import output.json
+   */
   import(): void {
     const input = document.createElement('input');
     input.type = 'file';
@@ -28,6 +30,9 @@ export class FileService {
     input.click();
   }
 
+  /**
+   * export output.json
+   */
   export(): void {
     const deviceType = this.deviceService.device.type;
     let filename;
@@ -36,26 +41,28 @@ export class FileService {
     } else if (deviceType === AppConst.deviceNameTypeKnee) {
       filename = AppConst.outputJsonNameTypeKnee;
     } else {
-      // TODO: Error
-      console.log('Unexpected device type.');
+      this.errorService.warning('ErrorMessage.saveExportFile');
       return;
     }
-
-    const ungroupParams = this.deviceService.ungroupParams;
-    const outputParams = ungroupParams.map(param => {
-      return {
-        paramaddress: param.paramaddress,
-        paramlabel: param.paramlabel,
-        value: param.editedvalue
+    try {
+      const ungroupParams = this.deviceService.ungroupParams;
+      const outputParams = ungroupParams.map(param => {
+        return {
+          paramaddress: param.paramaddress,
+          paramlabel: param.paramlabel,
+          value: param.editedvalue
+        };
+      });
+      const json = {
+        ParamService: {
+          params: outputParams
+        }
       };
-    });
-    const json = {
-      ParamService: {
-        params: outputParams
-      }
-    };
-    const blob = new Blob([JSON.stringify(json, null, '  ')]);
-    this.download(blob, filename);
+      const blob = new Blob([JSON.stringify(json, null, '  ')]);
+      this.download(blob, filename);
+    } catch (e) {
+      this.errorService.warning('ErrorMessage.saveExportFile');
+    }
   }
 
   private download(blob: Blob, filename: string) {
@@ -68,7 +75,7 @@ export class FileService {
   private fileRead(file: File) {
     const reader = new FileReader();
     reader.onerror = (err) => {
-      this.errorService.warning('Error.loadImportFile');
+      this.errorService.warning('ErrorMessage.loadImportFile');
     };
     reader.onload = (event) => {
       const result = reader.result;
@@ -78,13 +85,13 @@ export class FileService {
           if (output && output.ParamService && output.ParamService.params) {
             this.deviceService.mergeParams(output);
           } else {
-            this.errorService.warning('Error.loadImportFile');
+            this.errorService.warning('ErrorMessage.loadImportFile');
           }
         } catch (e) {
-          this.errorService.warning('Error.loadImportFile');
+          this.errorService.warning('ErrorMessage.loadImportFile');
         }
       } else {
-        this.errorService.warning('Error.loadImportFile');
+        this.errorService.warning('ErrorMessage.loadImportFile');
       }
     };
     reader.readAsText(file);

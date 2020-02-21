@@ -155,23 +155,23 @@ export class ApiService {
   private globalError(status: number, code: string) {
     switch (status) {
       case 0:
-          return 'Error.server';
+          return 'ErrorMessage.server';
       case 400:
-          return 'Error.badRequest';
+          return 'ErrorMessage.badRequest';
       case 401:
-          return 'Error.unauthorized';
+          return 'ErrorMessage.unauthorized';
       case 404:
           // No error_code in the invalid url.
           if (!code) {
-              return 'Error.notFound';
+              return 'ErrorMessage.notFound';
           }
           break;
       case 405:
-          return 'Error.methodNotAllowed';
-      case 408:
-          return 'Error.requestTimeout';
+          return 'ErrorMessage.methodNotAllowed';
       case 500:
-          return 'Error.internalServerError';
+          return 'ErrorMessage.internalServerError';
+      case 504:
+          return 'ErrorMessage.gatewayTimeout';
       default:
           break;
     }

@@ -41,7 +41,7 @@ export interface WidgetType {
     default: number;
     min: number;
     max: number;
-    step: number;
+    resolution: number;
     option: Array<WidgetTypeOption>;
     decimalplaces: number;
     unit: string;

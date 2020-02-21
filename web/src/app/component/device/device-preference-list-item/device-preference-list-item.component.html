@@ -24,19 +24,19 @@
                     [(ngModel)]="param.editedvalue"
                     [min]="widgettype.min"
                     [max]="widgettype.max"
-                    [step]="widgettype.step"
+                    [step]="widgettype.resolution"
                     [disabled]="isDisabled">
                 <span matSuffix>{{ widgettype.unit }}</span>
             </mat-form-field>
         </ng-container>
         <ng-container *ngIf="widgettype.type === widgetComponentType.Slider">
             <div class="slider-container">
-                <span class="slider-value">{{ matslider.value }}{{ widgettype.unit }}</span>
+                <p class="slider-value">{{ toEditedValueFromSlider(matslider.value) }}{{ widgettype.unit }}</p>
                 <mat-slider class="slider" #matslider
-                    [(value)]="param.editedvalue"
-                    [min]="widgettype.min"
-                    [max]="widgettype.max"
-                    [step]="widgettype.step"
+                    [(ngModel)]="sliderValue"
+                    [min]="slilderMin"
+                    [max]="slilderMax"
+                    [step]="widgettype.resolution"
                     [disabled]="isDisabled">
                 </mat-slider>
             </div>

@@ -22,10 +22,10 @@
                         "paramlabel": "param2",
                         "widgettype": {
                             "type": "slider",
-                            "default": 50,
+                            "default": 5,
                             "min": 0,
-                            "max": 100,
-                            "step": 1,
+                            "max": 10,
+                            "resolution": 3,
                             "unit": "Kg"
                         }
                     },
@@ -54,7 +54,7 @@
                             "default": 0,
                             "min": 0, 
                             "max": 10,
-                            "step": 0.1
+                            "resolution": 0.1
                         }
                     },
                     {
@@ -65,7 +65,7 @@
                             "default": 50,
                             "min": 0,
                             "max": 1000,
-                            "step": 10
+                            "resolution": 10
                         }
                     },
                     {

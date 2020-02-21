@@ -1,15 +1,14 @@
-import json
 from logger_util import LoggerUtil
 
-class ApplicationExcepiton(Exception):
+class ApplicationException(Exception):
 
     @staticmethod
     def create(error_code, message):
-        app_exception = ApplicationExcepiton()
-        app_exception.set_error_code(error_code, message)
+        app_exception = ApplicationException()
+        app_exception._set_error_code(error_code, message)
         return app_exception
 
-    def set_error_code(self, error_code, message):
+    def _set_error_code(self, error_code, message):
         self.error_code = format(error_code, '#06x')
         self._identify_status_code(error_code)
         LoggerUtil().error(f'({self.error_code}) {message}')
@@ -29,8 +28,8 @@ class ApplicationExcepiton(Exception):
             # method not allowed.
             self.http_status_code = 405
         elif detail_code == 0x0004:
-            # request timeout.
-            self.http_status_code = 408
+            # gateway timeout.
+            self.http_status_code = 504
         else:
             # internal server error.
             self.http_status_code = 500

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { interval, Observable, BehaviorSubject, from, zip, of, throwError } from 'rxjs';
-import { startWith, flatMap, map, concatMap, tap, delay, repeat, finalize, catchError } from 'rxjs/operators';
+import { interval, Observable, BehaviorSubject, from, zip, of, throwError, Subject } from 'rxjs';
+import { startWith, flatMap, map, concatMap, tap, delay, repeat, finalize, catchError, timeout, takeUntil } from 'rxjs/operators';
 
 import { Device } from '../interface/device';
 import { ApiService } from './api.service';
@@ -26,6 +26,8 @@ export class DeviceService {
   private lastUpdated = new BehaviorSubject<Date>(undefined);
   public lastUpdated$ =  this.lastUpdated.asObservable();
 
+  private deselect$ = new Subject();
+
   public errorParameterAdresses: string[] = [];
 
   constructor(
@@ -46,8 +48,13 @@ export class DeviceService {
       );
   }
 
-  setDevice(device: Device): void {
+  selectDevice(device: Device): void {
     this.device = device;
+  }
+
+  deselectDevice(): void {
+    this.device = null;
+    this.deselect$.next();
   }
 
   loadWidget(): Observable<Widget> {
@@ -72,7 +79,8 @@ export class DeviceService {
     return this.mode$().pipe(
       concatMap(() => this.status$()),
       delay(AppConst.deviceStatusInterval),
-      repeat()
+      repeat(),
+      takeUntil(this.deselect$)
     );
   }
 
@@ -121,7 +129,7 @@ export class DeviceService {
   updateEditedParameters(): void {
     const { address } = this.device;
     const editedParams = this.filterEditedParameters();
-    if (editedParams.length === 0) {
+    if (!address || editedParams.length === 0) {
       return;
     }
 
@@ -129,6 +137,7 @@ export class DeviceService {
     this.apiService.setMode(address, this.widget.ModeService.targetUuid, {
       value: AppConst.parameterUpdateMode
     }).pipe(
+      timeout(AppConst.waitParameterUpdateMode),
       finalize(() => this.app.stopLoading('setMode'))
     ).subscribe(data => {
       const parameters = editedParams.map(p => {
@@ -148,7 +157,7 @@ export class DeviceService {
         this.loadWidgetParameters(editedParams);
       });
     }, error => {
-      this.errorService.warning('Error.parameterUpdateMode');
+      this.errorService.warning('ErrorMessage.parameterUpdateMode');
     });
   }
 
@@ -156,7 +165,16 @@ export class DeviceService {
     params.ParamService.params.forEach(param => {
       const widgetParam = this.ungroupParams.find(n => n.paramaddress === param.paramaddress);
       if (widgetParam) {
-        widgetParam.editedvalue = param.value;
+        if (param.value !== undefined) {
+          let value = param.value;
+          if (widgetParam.widgettype.min !== undefined) {
+            value = Math.max(widgetParam.widgettype.min, value);
+          }
+          if (widgetParam.widgettype.max !== undefined) {
+            value = Math.min(widgetParam.widgettype.max, value);
+          }
+          widgetParam.editedvalue = value;
+        }
       }
     });
   }
@@ -173,7 +191,9 @@ export class DeviceService {
   private ungroup(groups: WidgetGroup[]): WidgetParam[] {
     let params = [];
     groups.forEach(g => {
-      params = params.concat(g.params);
+      if (g.params) {
+        params = params.concat(g.params);
+      }
     });
     return params;
   }
@@ -187,6 +207,10 @@ export class DeviceService {
   }
 
   private loadWidgetParameters(params: WidgetParam[]): void {
+    if (!params || params.length === 0) {
+      return;
+    }
+
     this.app.startLoading('loadParameter');
     from(params).pipe(
       concatMap(widgetParam => {
@@ -212,10 +236,14 @@ export class DeviceService {
   }
 
   private errorCheck(): void {
-    this.app.startLoading('errorCheck');
+    const { address } = this.device;
+    if (!address) {
+      return;
+    }
 
+    this.app.startLoading('errorCheck');
     this.apiService.getErrorParameters(
-      this.device.address,
+      address,
       this.widget.ParamService.writeUuid,
       this.widget.ParamService.readUuid
     ).pipe(
@@ -223,7 +251,7 @@ export class DeviceService {
     ).subscribe(data => {
       this.errorParameterAdresses = data.addresses;
       if (data.addresses.length > 0) {
-        this.errorService.warning('Error.paramAddress', {address: data.addresses});
+        this.errorService.warning('ErrorMessage.paramAddress', {address: data.addresses});
       }
       this.lastUpdated.next(new Date());
     });

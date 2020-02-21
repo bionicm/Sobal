@@ -9,4 +9,5 @@ export const AppConst = {
     outputJsonNameTypeAnkle: 'output_ankle.json',
     outputJsonNameTypeKnee: 'output_knee.json',
     parameterUpdateMode: '0x0200',
+    waitParameterUpdateMode: 10000
 };

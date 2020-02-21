@@ -1,5 +1,4 @@
-import json
-from struct import *
+from struct import pack, unpack
 
 class ConverterUtil:
     __instance = None
