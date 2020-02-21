@@ -36,17 +36,18 @@ export class DeviceListComponent implements OnInit, OnDestroy {
   }
 
   onSelected(device) {
-    this.deviceService.setDevice(device);
+    this.deviceService.selectDevice(device);
     this.deviceService.loadWidget().pipe(
       catchError(err => {
-        this.errorService.error('Error.loadWidgetJson');
+        this.errorService.error('ErrorMessage.loadWidgetJson');
         return throwError(err);
       })
     ).subscribe(() => {
-      // Open PinCode Daialog.
+      // Open PIN code Daialog.
       const dialogRef = this.dialog.open(PinDialogComponent, {});
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
+          // PIN code authentication successful.
           this.router.navigate(['/device']);
         }
       });

@@ -19,19 +19,20 @@
         "submit": "設定反映",
         "default": "初期値"
     },
-    "Error": {
+    "ErrorMessage": {
         "server": "サーバーとの通信に失敗しました。",
         "badRequest": "リクエストが不正です。",
         "unauthorized": "認証に失敗しました。",
         "notFound": "リクエストURLが不正です。",
         "methodNotAllowed": "リクエストメソッドが不正です。",
-        "requestTimeout": "デバイスとの接続に失敗しました。<br>最初からやり直してください。",
         "internalServerError": "サーバーの処理に失敗しました。",
+        "gatewayTimeout": "デバイスとの接続に失敗しました。<br>最初からやり直してください。",
 
         "loadWidgetJson": "widget.jsonの読み込みに失敗しました。",
         "paramAddress": "設定値に異常があります。<br>address={{address}}",
         "parameterUpdateMode": "STANCEモードにセットしてください。",
         "loadImportFile": "ファイルの読み込みに失敗しました。",
+        "saveExportFile": "ファイルの出力に失敗しました。",
         "__end": ""
     },
 

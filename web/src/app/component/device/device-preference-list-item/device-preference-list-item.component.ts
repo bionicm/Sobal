@@ -12,11 +12,50 @@ export class DevicePreferenceListItemComponent implements OnInit {
   @Input() param: WidgetParam;
   readonly widgetComponentType: typeof WidgetComponentType = WidgetComponentType;
 
+  // For slider.
+  private slilderMin: number;
+  private slilderMax: number;
+
   constructor(
     private deviceService: DeviceService
   ) { }
 
   ngOnInit() {
+    if (this.widgettype.type === WidgetComponentType.Slider) {
+      const {min, max, resolution} = this.widgettype;
+      const base = this.widgettype.default; // default is reserved word.
+
+      // Calculate slider range from protrusion.
+      const minProtrude = (base - min) % resolution;
+      if (minProtrude > 0) {
+        this.slilderMin = min - (resolution - minProtrude);
+      } else {
+        this.slilderMin = min;
+      }
+      const maxProtrude = (max - base) % resolution;
+      if (maxProtrude > 0) {
+        this.slilderMax = max + (resolution - maxProtrude);
+      } else {
+        this.slilderMax = max;
+      }
+    }
+  }
+
+  get sliderValue(): number {
+    if (this.param.editedvalue === undefined) {
+      return this.slilderMin;
+    }
+    if (this.param.editedvalue <= this.widgettype.min) {
+      return this.slilderMin;
+    }
+    if (this.param.editedvalue >= this.widgettype.max) {
+      return this.slilderMax;
+    }
+    return  this.param.editedvalue;
+  }
+
+  set sliderValue(sliderValue: number) {
+    this.param.editedvalue = this.toEditedValueFromSlider(sliderValue);
   }
 
   get widgettype(): WidgetType {
@@ -68,5 +107,16 @@ export class DevicePreferenceListItemComponent implements OnInit {
 
   default(): void {
     this.param.editedvalue = this.widgettype.default;
+  }
+
+  toEditedValueFromSlider(sliderValue) {
+    let editedvalue = sliderValue;
+    if (this.widgettype.min !== undefined) {
+      editedvalue = Math.max(this.widgettype.min, editedvalue);
+    }
+    if (this.widgettype.max !== undefined) {
+      editedvalue = Math.min(this.widgettype.max, editedvalue);
+    }
+    return editedvalue;
   }
 }

@@ -34,14 +34,15 @@ mat-form-field {
 }
 .slider-container {
     width: 240px;
-    display: flex;
-    align-items: center;
+    position: relative;
     .slider-value {
-        flex: 1;
+        margin: -8px 0 0 0;
     }
     mat-slider {
-        width: 160px;
-        padding-left: 0;
-        padding-right: 0;
+        position: absolute;
+        width: 100%;
+        top: 50%;
+        margin-top: -2px;
+        padding: 0;
     }
 }

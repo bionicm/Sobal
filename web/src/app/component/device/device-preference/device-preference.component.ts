@@ -15,8 +15,6 @@ export class DevicePreferenceComponent implements OnInit, OnDestroy {
   widget: Widget;
   lastUpdated$ = this.deviceService.lastUpdated$;
 
-  private statusSubscription: Subscription;
-
   constructor(
     private router: Router,
     private app: ApplicationService,
@@ -27,19 +25,17 @@ export class DevicePreferenceComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.app.setTitle('DevicePreference.title');
-    // TODO.
     if (!this.deviceService.device) {
-      this.router.navigate(['/']);
+      this.deselectDevice();
+      return;
     }
+
     this.widget = this.deviceService.widget;
-    this.statusSubscription = this.deviceService.pollingLoadStatus$().subscribe();
+    this.deviceService.pollingLoadStatus$().subscribe();
     this.reload();
   }
 
   ngOnDestroy() {
-    if (this.statusSubscription) {
-      this.statusSubscription.unsubscribe();
-    }
   }
 
   reload(): void {
@@ -59,7 +55,7 @@ export class DevicePreferenceComponent implements OnInit, OnDestroy {
   }
 
   deselectDevice(): void {
-    this.deviceService.setDevice(null);
+    this.deviceService.deselectDevice();
     this.router.navigate(['/']);
   }
 }
