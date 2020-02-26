@@ -59,7 +59,7 @@ class DeviceFacade:
                 param_address = self.__converter.to_uint16(parameter_bytes[0:2])
                 param_value = self.__converter.to_float(parameter_bytes[2:6])
             except:
-                raise ApplicationException.create(0x0208, f'convert from read response value to uint16, float failed. paramaddress={parameter_bytes[0:2]} value={parameter_bytes[2:6]}')
+                raise ApplicationException.create(0x0208, f'convert from read response data to uint16, float failed. paramaddress={parameter_bytes[0:2]} value={parameter_bytes[2:6]}')
 
             # convert from parameter address and value to json format.
             return {'paramaddress': format(param_address, '#06x'), 'value': param_value}
@@ -82,15 +82,15 @@ class DeviceFacade:
 
             # validate data size.
             if not status_value_bytes:
-                raise ApplicationException.create(0x0309, 'read response value is empty.')
+                raise ApplicationException.create(0x0309, 'read response data is empty.')
             elif len(status_value_bytes) != 4:
-                raise ApplicationException.create(0x0309, f'size of read response value is invalid. value={status_value_bytes}')
+                raise ApplicationException.create(0x0309, f'size of read response data is invalid. data={status_value_bytes}')
 
             try:
                 # convert from bytearray to float.
                 status_value = self.__converter.to_float(status_value_bytes)
             except:
-                raise ApplicationException.create(0x0308, f'convert from read response value to float failed. value={status_value_bytes}')
+                raise ApplicationException.create(0x0308, f'convert from read response data to float failed. data={status_value_bytes}')
 
             # convert from status value to json format.
             return {'uuid': read_uuid, 'value': status_value}
@@ -110,8 +110,17 @@ class DeviceFacade:
             elif not device_address:
                 raise ApplicationException.create(0x0400, 'device address is empty.')
 
-            # get array of uint16.
-            error_addresses = await self.__device_service.get_error_address(device_address, write_uuid, read_uuid)
+            # get bytearray.
+            error_addresses_bytes = await self.__device_service.get_error_address(device_address, write_uuid, read_uuid)
+
+            # convert from bytearray to array of uint16.
+            error_addresses = []
+            for error_address_bytes in error_addresses_bytes:
+                try:
+                    error_address = self.__converter.to_uint16(error_address_bytes[2:])
+                    error_addresses.append(format(error_address, '#06x'))
+                except:
+                    raise ApplicationException.create(0x0408, f'convert from read response data to uint16 failed. data={error_address_bytes}')
 
             # convert from error addresses to json format.
             return {'addresses': error_addresses}
@@ -133,15 +142,15 @@ class DeviceFacade:
             mode_value_bytes = await self.__device_service.get_device_status(device_address, read_uuid)
 
             if not mode_value_bytes:
-                raise ApplicationException.create(0x0509, 'read response value is empty.')
+                raise ApplicationException.create(0x0509, 'read response data is empty.')
             elif len(mode_value_bytes) != 2:
-                raise ApplicationException.create(0x0509, f'size of read response value is invalid. value={mode_value_bytes}')
+                raise ApplicationException.create(0x0509, f'size of read response data is invalid. data={mode_value_bytes}')
 
             # convert from bytearray to uint16.
             try:
                 mode_value = self.__converter.to_uint16(mode_value_bytes)
             except:
-                raise ApplicationException.create(0x0508, f'convert from read response value to uint16 failed. value={mode_value_bytes}')
+                raise ApplicationException.create(0x0508, f'convert from read response data to uint16 failed. data={mode_value_bytes}')
 
             # convert from mode value to json format.
             return {'uuid': read_uuid, 'value': format(mode_value, '#06x')}
@@ -211,10 +220,10 @@ class DeviceFacade:
                 parsed_value = int(value, 16)
             return parsed_value
         except:
-            raise ApplicationException.create(0x000C, f'convert from value to int failed. value={value}')
+            raise ApplicationException.create(0x000c, f'convert from value to int failed. value={value}')
 
     def _parse_float(self, value):
         try:
             return float(value)
         except:
-            raise ApplicationException.create(0x000C, f'convert from value to float failed. value={value}')
+            raise ApplicationException.create(0x000c, f'convert from value to float failed. value={value}')
