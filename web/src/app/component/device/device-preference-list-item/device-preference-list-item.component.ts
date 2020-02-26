@@ -12,7 +12,7 @@ export class DevicePreferenceListItemComponent implements OnInit {
   @Input() param: WidgetParam;
   readonly widgetComponentType: typeof WidgetComponentType = WidgetComponentType;
 
-  // For slider.
+  // Use slider.
   private slilderMin: number;
   private slilderMax: number;
 
@@ -21,6 +21,7 @@ export class DevicePreferenceListItemComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    // Initialize slider range.
     if (this.widgettype.type === WidgetComponentType.Slider) {
       const {min, max, resolution} = this.widgettype;
       const base = this.widgettype.default; // default is reserved word.
@@ -51,7 +52,7 @@ export class DevicePreferenceListItemComponent implements OnInit {
     if (this.param.editedvalue >= this.widgettype.max) {
       return this.slilderMax;
     }
-    return  this.param.editedvalue;
+    return this.param.editedvalue;
   }
 
   set sliderValue(sliderValue: number) {
@@ -63,35 +64,17 @@ export class DevicePreferenceListItemComponent implements OnInit {
   }
 
   get isEdited(): boolean {
-    return this.param.currentvalue !== this.param.editedvalue;
+    return this.deviceService.isEditedParameter(this.param);
   }
 
   get isValidateError(): boolean {
-    const value = this.param.editedvalue;
-    const widgettype = this.widgettype;
-    if (value === null || value === undefined) {
-      return true;
-    }
-
-    if (widgettype.type === WidgetComponentType.Combobox) { // combobox.
-      if (widgettype.option.findIndex(n => n.value === value) < 0) {
-        return true;
-      }
-    } else { // textbox, slider.
-      if (widgettype.min !== undefined
-          && value < widgettype.min) {
-        return true;
-      }
-      if (widgettype.max !== undefined
-          && value > widgettype.max) {
-        return true;
-      }
-    }
-
-    return false;
+    return this.deviceService.isValidateError(this.param);
   }
 
-  get isParameterError(): boolean {
+  get isParameterWarn(): boolean {
+    if (this.param.currentvalue === undefined) {
+      return true;
+    }
     const address = this.param.paramaddress;
     const i = this.deviceService.errorParameterAdresses.findIndex(n => n === address);
     return i >= 0;
@@ -109,7 +92,7 @@ export class DevicePreferenceListItemComponent implements OnInit {
     this.param.editedvalue = this.widgettype.default;
   }
 
-  toEditedValueFromSlider(sliderValue) {
+  toEditedValueFromSlider(sliderValue: number): number {
     let editedvalue = sliderValue;
     if (this.widgettype.min !== undefined) {
       editedvalue = Math.max(this.widgettype.min, editedvalue);

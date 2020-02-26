@@ -38,6 +38,10 @@ export class DevicePreferenceComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
   }
 
+  get isDisabledUpdate(): boolean {
+    return !this.deviceService.hasEditedParameter || this.deviceService.hasValidateError;
+  }
+
   reload(): void {
     this.deviceService.loadAllWidgetParameters();
   }

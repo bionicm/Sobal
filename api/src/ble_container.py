@@ -14,7 +14,7 @@ class BleContainer:
         try:
             devices = await discover(timeout)
         except:
-            raise ApplicationException.create(0x010B, 'get devices failed.')
+            raise ApplicationException.create(0x010b, 'get devices failed.')
         return list(map(lambda device: DeviceBean(device.name, device.address, device.rssi), devices))
 
     def __new__(cls):

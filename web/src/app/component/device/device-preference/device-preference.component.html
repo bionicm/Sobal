@@ -12,7 +12,9 @@
             <button mat-flat-button mat-button (click)="reload()">
                 <span translate>DevicePreference.reload</span>
             </button>
-            <button mat-flat-button color="primary" (click)="update()">
+            <button mat-flat-button (click)="update()"
+                color="primary"
+                [disabled]="isDisabledUpdate">
                 <span translate>DevicePreference.submit</span>
             </button>
         </mat-toolbar>

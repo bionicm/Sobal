@@ -14,7 +14,7 @@ class ApplicationException(Exception):
         LoggerUtil().error(f'({self.error_code}) {message}')
 
     def _identify_status_code(self, error_code):
-        detail_code = error_code & 0x00FF
+        detail_code = error_code & 0x00ff
         if detail_code == 0x0000 or detail_code == 0x000c:
             # bad request.
             self.http_status_code = 400

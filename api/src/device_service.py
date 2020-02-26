@@ -14,6 +14,7 @@ class DeviceService:
     consts.NO_ERROR = 0xFFFF
 
     async def get_devices(self, filter_names):
+        LoggerUtil().info('get devices.')
         devices = await BleContainer.get_devices()
         filterd_devices = []
         for device in devices:
@@ -22,6 +23,7 @@ class DeviceService:
                     device.device_type = name
                     filterd_devices.append(device)
                     break
+        LoggerUtil().info(f'{len(filterd_devices)} devices found. filter={filter_names}')
         return filterd_devices
 
     async def get_device_param(self, address, write_uuid, read_uuid, param_address_bytes):
@@ -46,15 +48,15 @@ class DeviceService:
 
         # validate data size.
         if not parameter_bytes:
-            raise ApplicationException.create(0x0209, f'read response value is empty.')
+            raise ApplicationException.create(0x0209, f'read response data is empty.')
         elif  len(parameter_bytes) != 6:
-            raise ApplicationException.create(0x0209, f'size of read response value is invalid. data={parameter_bytes}')
+            raise ApplicationException.create(0x0209, f'size of read response data is invalid. data={parameter_bytes}')
 
         # compare address read to wrote addres.
         if parameter_bytes[0:2] == param_address_bytes:
             return parameter_bytes
         else:
-            raise ApplicationException.create(0x020A, f'read address does not match. write-paramaddress={param_address_bytes} read-paramaddress={parameter_bytes[0:2]}')
+            raise ApplicationException.create(0x020a, f'read address does not match. write-paramaddress={param_address_bytes} read-paramaddress={parameter_bytes[0:2]}')
 
     async def get_device_status(self, address, read_uuid):
         try:
@@ -67,9 +69,11 @@ class DeviceService:
         return status_bytes
 
     async def get_error_address(self, address, write_uuid, read_uuid):
-        error_addresses = []
+        error_addresses_bytes = []
+        read_address = self.__converter.to_2bytes(consts.READ_ADDRESS)
+        no_error = self.__converter.to_2bytes(consts.NO_ERROR)
         for error_param_address in consts.ERROR_PARAMETER_ADDRESSES:
-            read_error_address = self.__converter.to_2bytes(consts.READ_ADDRESS) + self.__converter.to_2bytes(error_param_address)
+            read_error_address = read_address + self.__converter.to_2bytes(error_param_address)
 
             try:
                 LoggerUtil().info(f'write to get error address. data={read_error_address}, uuid={write_uuid}')
@@ -91,23 +95,15 @@ class DeviceService:
 
             # validate data size.
             if not error_address_bytes:
-                raise ApplicationException.create(0x0409, 'read response value is empty.')
-            elif len(error_address_bytes) != 2:
-                raise ApplicationException.create(0x0409, f'size of read response value is invalid. data={error_address_bytes}')
+                raise ApplicationException.create(0x0409, 'read response data is empty.')
+            elif len(error_address_bytes) != 4:
+                raise ApplicationException.create(0x0409, f'size of read response data is invalid. data={error_address_bytes}')
+            elif error_address_bytes[2:] == no_error:
+                return error_addresses_bytes
             else:
-                try:
-                    # convert to uint16 if correct data.
-                    error_address = self.__converter.to_uint16(error_address_bytes)
-                except:
-                    raise ApplicationException.create(0x0408, f'convert from read response value to uint16 failed. paramaddress={error_address_bytes}')
+                error_addresses_bytes.append(error_address_bytes)
 
-            if error_address == consts.NO_ERROR:
-                # no error.
-                break
-            else:
-                error_addresses.append(format(error_address, '#06x'))
-
-        return error_addresses
+        return error_addresses_bytes
 
     async def update_device_status(self, address, write_uuid, data_bytes):
         try:
@@ -126,7 +122,7 @@ class DeviceService:
                 address_bytes = self.__converter.to_2bytes(device_parameter_bean.param_address)
                 value_bytes = self.__converter.to_4bytes(device_parameter_bean.param_value)
             except:
-                raise ApplicationException.create(0x060C, f'convert from int or float to bytes failed. paramaddress={device_parameter_bean.param_address} value={device_parameter_bean.param_value}')
+                raise ApplicationException.create(0x060c, f'convert from int or float to bytes failed. paramaddress={device_parameter_bean.param_address} value={device_parameter_bean.param_value}')
 
             try:
                 parameter_bytes = address_bytes + value_bytes

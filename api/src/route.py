@@ -23,7 +23,7 @@ async def devices(req, resp):
     except ApplicationException as app_exception:
         error_handler(resp, app_exception)
     except:
-        app_exception = ApplicationException.create(0x01FF, 'cause unknown error.')
+        app_exception = ApplicationException.create(0x01ff, 'cause unknown error.')
         error_handler(resp, app_exception)
 
 @api.route('/v1/devices/{device_address}/params/{param_address}')
@@ -35,7 +35,7 @@ async def device_param(req, resp, device_address, param_address):
     except ApplicationException as app_exception:
         error_handler(resp, app_exception)
     except:
-        app_exception = ApplicationException.create(0x02FF, 'cause unknown error.')
+        app_exception = ApplicationException.create(0x02ff, 'cause unknown error.')
         error_handler(resp, app_exception)
 
 @api.route('/v1/devices/{device_address}/statuses')
@@ -47,7 +47,7 @@ async def device_status(req, resp, device_address):
     except ApplicationException as app_exception:
         error_handler(resp, app_exception)
     except:
-        app_exception = ApplicationException.create(0x03FF, 'cause unknown error.')
+        app_exception = ApplicationException.create(0x03ff, 'cause unknown error.')
         error_handler(resp, app_exception)
 
 @api.route('/v1/devices/{device_address}/errorparams')
@@ -59,7 +59,7 @@ async def error_params(req, resp, device_address):
     except ApplicationException as app_exception:
         error_handler(resp, app_exception)
     except:
-        app_exception = ApplicationException.create(0x04FF, 'cause unknown error.')
+        app_exception = ApplicationException.create(0x04ff, 'cause unknown error.')
         error_handler(resp, app_exception)
 
 @api.route('/v1/devices/{device_address}/modes')
@@ -71,7 +71,7 @@ async def device_mode(req, resp, device_address):
     except ApplicationException as app_exception:
         error_handler(resp, app_exception)
     except:
-        app_exception = ApplicationException.create(0x05FF, 'cause unknown error.')
+        app_exception = ApplicationException.create(0x05ff, 'cause unknown error.')
         error_handler(resp, app_exception)
 
 @api.route('/v1/devices/{device_address}/params')
@@ -82,7 +82,7 @@ async def update_device_params(req, resp, device_address):
     except ApplicationException as app_exception:
         error_handler(resp, app_exception)
     except:
-        app_exception = ApplicationException.create(0x06FF, 'cause unknown error.')
+        app_exception = ApplicationException.create(0x06ff, 'cause unknown error.')
         error_handler(resp, app_exception)
 
 def error_handler(resp, exception):
