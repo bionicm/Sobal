@@ -1,12 +1,12 @@
 <mat-list-item class="list-item"
-    [class.warn]="!isValidateError && !isEdited && isParameterError"
+    [class.warn]="!isValidateError && !isEdited && isParameterWarn"
     [class.diff]="!isValidateError && isEdited"
     [class.error]="isValidateError">
     <div class="parameter-container">
-        <p class="parameter-title" translate>{{ param.paramlabel }}</p>
+        <p class="parameter-title" translate>{{ param.paramlabel }}<span> ({{ param.paramaddress }})</span></p>
         <div class="parameter-vaule">
             <span *ngIf="widgettype.type === widgetComponentType.Combobox; else valueBlock" translate>
-                {{ param.currentvalue | optionName: widgettype.option }}
+                {{ (param.currentvalue | optionName: widgettype.option) || "--" }}
             </span>
             <ng-template #valueBlock>
                 <span>{{ param.currentvalue || "--" }}</span>

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { interval, Observable, BehaviorSubject, from, zip, of, throwError, Subject } from 'rxjs';
-import { startWith, flatMap, map, concatMap, tap, delay, repeat, finalize, catchError, timeout, takeUntil } from 'rxjs/operators';
+import { startWith, flatMap, map, concatMap, tap, delay, repeat, finalize, catchError, timeout, takeUntil, take } from 'rxjs/operators';
 
 import { Device } from '../interface/device';
 import { ApiService } from './api.service';
@@ -10,6 +10,7 @@ import { AppConst } from '../const/const';
 import { Output } from '../interface/output';
 import { ApplicationService } from './application.service';
 import { ErrorService } from './error.service';
+import { WidgetComponentType } from '../const/enums';
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,7 @@ import { ErrorService } from './error.service';
 export class DeviceService {
   // selected device.
   public device: Device = undefined;
+  private deselect$ = new Subject();
 
   // widget.
   public widget: Widget;
@@ -25,8 +27,6 @@ export class DeviceService {
   // Last time to get all parameters.
   private lastUpdated = new BehaviorSubject<Date>(undefined);
   public lastUpdated$ =  this.lastUpdated.asObservable();
-
-  private deselect$ = new Subject();
 
   public errorParameterAdresses: string[] = [];
 
@@ -73,6 +73,21 @@ export class DeviceService {
         this.ungroupParams = this.ungroup(data.ParamService.groups);
       })
     );
+  }
+
+  connect(pincode: string): Observable<boolean> {
+    // TODO PIN code auth.
+    if (pincode === '1111') {
+      // TODO dummy connection for authentication.
+      this.app.startLoading('connect');
+      return this.mode$().pipe(
+        take(1),
+        map(data => true),
+        finalize(() => this.app.stopLoading('connect'))
+      );
+    } else {
+      return of(false);
+    }
   }
 
   pollingLoadStatus$() {
@@ -180,6 +195,61 @@ export class DeviceService {
   }
 
   ////////////////////////////////////////
+  // Validate method.
+  ////////////////////////////////////////
+  get hasValidateError(): boolean {
+    if (!this.ungroupParams) {
+      return false;
+    }
+    const i = this.ungroupParams.findIndex(n => this.isValidateError(n));
+    return i >= 0;
+  }
+
+  get hasEditedParameter(): boolean {
+    if (!this.ungroupParams) {
+      return false;
+    }
+    const i = this.ungroupParams.findIndex(n => this.isEditedParameter(n));
+    return i >= 0;
+  }
+
+  isValidateError(param: WidgetParam): boolean {
+    const value = param.editedvalue;
+    if (value === undefined) {
+      // Before editing
+      return false;
+    }
+    if (value === null) {
+      return true;
+    }
+    const widgettype = param.widgettype;
+    if (widgettype.type === WidgetComponentType.Combobox) { // combobox.
+      if (widgettype.option.findIndex(n => n.value === value) < 0) {
+        // Not found.
+        return true;
+      }
+    } else { // textbox, slider.
+      if (widgettype.min !== undefined
+          && value < widgettype.min) {
+        return true;
+      }
+      if (widgettype.max !== undefined
+          && value > widgettype.max) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  isEditedParameter(param: WidgetParam): boolean {
+    if (param.editedvalue === undefined) {
+      // Before editing
+      return false;
+    }
+    return param.currentvalue !== param.editedvalue;
+  }
+
+  ////////////////////////////////////////
   // Private method.
   ////////////////////////////////////////
   private sortDevices(devices: Device[]): Device[] {
@@ -199,11 +269,7 @@ export class DeviceService {
   }
 
   private filterEditedParameters(): WidgetParam[] {
-    return this.ungroupParams.filter(p => {
-      return p.editedvalue !== undefined
-        && p.editedvalue !== null
-        && p.currentvalue !== p.editedvalue;
-    });
+    return this.ungroupParams.filter(p => this.isEditedParameter(p));
   }
 
   private loadWidgetParameters(params: WidgetParam[]): void {
@@ -211,6 +277,7 @@ export class DeviceService {
       return;
     }
 
+    const readFailureParameterAdresses = [];
     this.app.startLoading('loadParameter');
     from(params).pipe(
       concatMap(widgetParam => {
@@ -226,11 +293,26 @@ export class DeviceService {
       })
     ).subscribe(data => {
       if (data[0] && data[1] && data[0].paramaddress === data[1].paramaddress) {
-        data[0].currentvalue = data[1].value;
-        data[0].editedvalue = data[1].value;
+        const deviceCurrentValue = data[1].value;
+
+        // set widget current parameter.
+        data[0].currentvalue = deviceCurrentValue;
+
+        if (deviceCurrentValue !== undefined) {
+          // set widget edit parameter.
+          data[0].editedvalue = deviceCurrentValue;
+        } else {
+          // read failure.
+          readFailureParameterAdresses.push(data[1].paramaddress);
+        }
       }
     }, error => {
     }, () => {
+      if (readFailureParameterAdresses.length > 0) {
+        this.errorService.warning('ErrorMessage.readFailureParamAddress', {
+          address: readFailureParameterAdresses.join(', ')
+        });
+      }
       this.errorCheck();
     });
   }
@@ -251,7 +333,7 @@ export class DeviceService {
     ).subscribe(data => {
       this.errorParameterAdresses = data.addresses;
       if (data.addresses.length > 0) {
-        this.errorService.warning('ErrorMessage.paramAddress', {address: data.addresses});
+        this.errorService.warning('ErrorMessage.errorParamAddress', {address: data.addresses.join(', ')});
       }
       this.lastUpdated.next(new Date());
     });

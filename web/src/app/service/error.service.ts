@@ -42,9 +42,9 @@ export class ErrorService {
   }
 
   warning(msg: string, msgParams?: any): void {
-    const highPriority = this.findHighPriorityDialog(warningPriority);
+    const highPriority = this.findHighPriorityDialog(errorPriority);
     if (highPriority) {
-      // High priority dialog already displayed.
+      // Error dialog already displayed.
       return;
     }
 

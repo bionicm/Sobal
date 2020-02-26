@@ -29,7 +29,8 @@
         "gatewayTimeout": "デバイスとの接続に失敗しました。<br>最初からやり直してください。",
 
         "loadWidgetJson": "widget.jsonの読み込みに失敗しました。",
-        "paramAddress": "設定値に異常があります。<br>address={{address}}",
+        "readFailureParamAddress": "設定値の取得に失敗しました。<br>address={{address}}",
+        "errorParamAddress": "設定値に異常があります。<br>address={{address}}",
         "parameterUpdateMode": "STANCEモードにセットしてください。",
         "loadImportFile": "ファイルの読み込みに失敗しました。",
         "saveExportFile": "ファイルの出力に失敗しました。",
