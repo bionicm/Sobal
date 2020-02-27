@@ -122,7 +122,7 @@ class DeviceService:
                 address_bytes = self.__converter.to_2bytes(device_parameter_bean.param_address)
                 value_bytes = self.__converter.to_4bytes(device_parameter_bean.param_value)
             except:
-                raise ApplicationException.create(0x060c, f'convert from int or float to bytes failed. paramaddress={device_parameter_bean.param_address} value={device_parameter_bean.param_value}')
+                raise ApplicationException.create(0x0600, f'convert from int or float to bytes failed. paramaddress={device_parameter_bean.param_address} value={device_parameter_bean.param_value}')
 
             try:
                 parameter_bytes = address_bytes + value_bytes
