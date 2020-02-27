@@ -13,8 +13,8 @@ export class DevicePreferenceListItemComponent implements OnInit {
   readonly widgetComponentType: typeof WidgetComponentType = WidgetComponentType;
 
   // Use slider.
-  private slilderMin: number;
-  private slilderMax: number;
+  slilderMin: number;
+  slilderMax: number;
 
   constructor(
     private deviceService: DeviceService
