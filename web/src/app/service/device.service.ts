@@ -68,6 +68,11 @@ export class DeviceService {
       return throwError(new Error('Widget json load error.'));
     }
     return this.http.get<Widget>(path).pipe(
+      map(data => {
+        // Throw an Error if validation fails.
+        this.validateWidget(data);
+        return data;
+      }),
       tap(data => {
         this.widget = data;
         this.ungroupParams = this.ungroup(data.ParamService.groups);
@@ -78,8 +83,8 @@ export class DeviceService {
   connect(pincode: string): Observable<boolean> {
     // TODO PIN code auth.
     if (pincode === '1111') {
-      // TODO dummy connection for authentication.
       this.app.startLoading('connect');
+      // TODO dummy api for connection.
       return this.mode$().pipe(
         take(1),
         map(data => true),
@@ -197,6 +202,34 @@ export class DeviceService {
   ////////////////////////////////////////
   // Validate method.
   ////////////////////////////////////////
+  private validateWidget(widget: Widget): void {
+    if (!widget || !widget.ParamService || !widget.ModeService || !widget.StatusService) {
+      throw new Error('Widget json validate error. Required Service.');
+    }
+    for (const group of widget.ParamService.groups) {
+      for (const param of group.params) {
+        const widgettype = param.widgettype;
+        if (widgettype.type === WidgetComponentType.Textbox) {
+          // No required.
+        } else if (widgettype.type === WidgetComponentType.Slider) {
+          if (widgettype.min === undefined
+             || widgettype.max === undefined
+             || widgettype.default === undefined
+             || widgettype.resolution === undefined) {
+              throw new Error('Widget json validate error. Required property of Slider.');
+          }
+        } else if (widgettype.type === WidgetComponentType.Combobox) {
+          if (!widgettype.option || widgettype.option.length === 0) {
+            throw new Error('Widget json validate error. Required property of Combobox.');
+          }
+        } else {
+          throw new Error('Widget json validate error. Unexpected type.');
+        }
+      }
+    }
+    // Validate check OK.
+  }
+
   get hasValidateError(): boolean {
     if (!this.ungroupParams) {
       return false;
