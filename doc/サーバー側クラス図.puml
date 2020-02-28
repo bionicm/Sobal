@@ -1,0 +1,82 @@
+
+@startuml
+
+class Route {
+  devices(req, resp): any
+  device_param(req, resp, device_address, param_address): any
+  device_status(req, resp, device_address): any
+  error_params(req, resp, device_address): any
+  device_mode(req, resp, device_address): any
+  update_device_params(req, resp, device_address): any
+  error_handler(resp, exception: ApplicationException): any
+}
+class DeviceFacade {
+  __device_service: DeviceService
+  __converter: ConverterUtil
+  get_devices(req): any
+  get_device_param(req, device_address, param_address): any
+  get_device_status(req, device_address): any
+  get_error_params(req, device_address): any
+  device_mode(req, device_address): any
+  update_device_params(req, device_address)
+  _parse_int(value): int
+  _parse_float(value): float
+}
+class DeviceService {
+  __ble: BleContainer
+  __converter: ConverterUtil
+  get_devices(filter_names): [DeviceBean]
+  get_device_param(address, write_uuid, read_uuid, param_address_bytes): bytearray
+  get_device_status(address, read_uuid): bytearray
+  get_error_address(address, write_uuid, read_uuid): [bytearray]
+  update_device_status(address, write_uuid, data_bytes)
+  update_device_params(address, write_uuid, device_parameter_beans)
+}
+class DeviceParameterBean {
+  __param_address: int
+  __param_value: float
+}
+class BleContainer <<Singleton>> {
+  __instance: BleContainer
+  __clients: dict
+  {static}get_devices(timeout=1.0): [DeviceBean]
+  read(address, uuid): bytes
+  write(address, uuid, data_bytes)
+}
+class ConverterUtil <<Singleton>> {
+  __instance: ConverterUtil
+  to_json(application_exception): any
+  to_bytes(value): bytes
+  to_2bytes(value): bytes
+  to_4bytes(value): bytes
+  to_uint16(two_bytes): int
+  to_float(four_bytes): float
+}
+class LoggerUtil <<Singleton>> {
+  __instance: LoggerUtil
+  set_log_config(setting_file)
+  debug(message)
+  info(message)
+  warn(message)
+  error(message)
+}
+class ApplicationException {
+  {static}create(error_code, message): ApplicationException
+  _set_error_code(error_code, message)
+  _identify_status_code(error_code)
+}
+class DeviceBean {
+  __name: str
+  __address: str
+  __rssi: int
+}
+Route -- DeviceFacade
+DeviceFacade -[hidden] DeviceParameterBean
+DeviceFacade *-- DeviceParameterBean
+DeviceService *-- BleContainer 
+DeviceFacade *-- DeviceService
+BleContainer -[hidden] DeviceBean
+BleContainer *-- DeviceBean
+ApplicationException -[hidden]do- ConverterUtil
+ConverterUtil -[hidden]do- LoggerUtil
+@enduml

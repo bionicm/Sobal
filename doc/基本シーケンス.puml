@@ -1,0 +1,229 @@
+@startuml
+title EngineerApplication正常系フロー
+actor foo
+collections widget.json
+collections output.json
+
+
+== デバイス接続 ==
+foo -> EAClient: パワード義足一覧取得
+activate EAClient
+EAClient -> EAServer: パワード義足一覧取得
+activate EAServer
+EAServer -> bleak: 周辺BLEデバイスへブロードキャスト
+activate bleak
+bleak -> EAServer: 周辺BLEデバイス一覧返却
+deactivate bleak
+EAServer -> EAServer: パワード義足一覧作成
+EAServer --> EAClient: パワード義足一覧の返却
+deactivate EAServer
+deactivate EAClient
+
+foo -> EAClient: パワード義足へ接続要求
+activate EAClient
+EAClient -> EAClient : PINコード入力
+EAClient -> EAServer: パワード義足への接続要求
+activate EAServer
+EAServer -> bleak: パワード義足への接続要求
+activate bleak
+bleak -> パワード義足: 接続要求
+activate パワード義足
+パワード義足 --> bleak: 接続OK
+deactivate パワード義足
+bleak --> EAServer: 接続OK
+deactivate bleak
+EAServer --> EAClient: 接続OK
+deactivate EAServer
+deactivate EAClient
+
+== GUIの構築 ==
+foo -> EAClient : パワード義足の選択
+activate EAClient
+EAClient -> EAClient : knee or ankle の判定
+EAClient -> widget.json: 内容の取得
+widget.json --> EAClient: 要素の返却
+EAClient -> EAClient: widgettype を確認しつつGUIの構築(要素分動的に)
+
+== パラメータ取得 ==
+foo -> EAClient: パラメータ取得依頼
+EAClient -> widget.json: パラメータのアドレス確認
+widget.json --> EAClient: アドレスの返却
+EAClient -> EAServer: アドレスのパラメータ取得
+activate EAServer
+EAServer -> bleak: アドレスのパラメータ取得
+activate bleak
+bleak -> パワード義足: アドレスのパラメータ取得
+activate パワード義足
+パワード義足 --> bleak: パラメータ値返却
+deactivate パワード義足
+bleak --> EAServer: パラメータ値返却
+deactivate bleak
+EAServer --> EAClient: パラメータ値返却
+deactivate EAServer
+EAClient -> EAClient: 画面の更新
+
+== パラメータ取得(失敗) ==
+foo -> EAClient: パラメータ取得依頼
+EAClient -> widget.json: パラメータのアドレス確認
+widget.json --> EAClient: アドレスの返却
+EAClient -> EAServer: アドレスのパラメータ取得
+activate EAServer
+EAServer -> bleak: アドレスのパラメータ取得
+activate bleak
+bleak -> パワード義足: アドレスのパラメータ取得
+activate パワード義足
+パワード義足 --> bleak: NG
+deactivate パワード義足
+bleak --> EAServer: NG
+deactivate bleak
+EAServer --> EAClient: Error内容
+deactivate EAServer
+EAClient -> EAClient: Error内容の表示
+
+== パラメータ設定 ==
+foo -> EAClient: 値の変更
+foo -> EAClient: 値の変更
+foo -> EAClient: 値の変更
+foo -> EAClient: パラメータ変更依頼
+EAClient -> EAClient: validate check(OK)
+EAClient -> EAServer: 変更パラメータのアドレス群
+activate EAServer
+EAServer -> bleak: アドレスのパラメータ変更
+activate bleak
+bleak -> パワード義足: アドレスのパラメータ変更
+activate パワード義足
+bleak <-- パワード義足: OK
+deactivate パワード義足
+EAServer <-- bleak: OK
+deactivate bleak
+EAServer -> bleak: アドレスのパラメータ変更
+activate bleak
+bleak -> パワード義足: アドレスのパラメータ変更
+activate パワード義足
+bleak <-- パワード義足: OK
+deactivate パワード義足
+EAServer <-- bleak: OK
+deactivate bleak
+EAServer -> bleak: アドレスのパラメータ変更
+activate bleak
+bleak -> パワード義足: アドレスのパラメータ変更
+activate パワード義足
+bleak <-- パワード義足: OK
+deactivate パワード義足
+EAServer <-- bleak: OK
+deactivate bleak
+EAServer -> bleak: パラメータ変更依頼
+activate bleak
+bleak -> パワード義足: パラメータ変更依頼
+activate パワード義足
+bleak <-- パワード義足: OK
+deactivate パワード義足
+EAServer <-- bleak: OK
+deactivate bleak
+EAClient <-- EAServer: OK
+deactivate EAServer
+
+== パラメータ設定(失敗) ==
+foo -> EAClient: 値の変更(指定範囲外)
+foo -> EAClient: パラメータ変更依頼
+EAClient -> EAClient: validate check(何かしらの問題がありスルー)
+EAClient -> EAServer: 変更パラメータのアドレス群
+activate EAServer
+EAServer -> bleak: アドレスのパラメータ変更
+activate bleak
+bleak -> パワード義足: パドレスのパラメータ変更
+activate パワード義足
+bleak <-- パワード義足: OK
+deactivate パワード義足
+EAServer <-- bleak: OK
+deactivate bleak
+EAServer -> bleak: パラメータ変更依頼
+activate bleak
+bleak -> パワード義足: パラメータ変更依頼
+activate パワード義足
+bleak <-- パワード義足: NG
+deactivate パワード義足
+EAServer <-- bleak: NG
+deactivate bleak
+EAServer -> bleak: Get last error
+activate bleak
+bleak -> パワード義足: Get last error
+activate パワード義足
+bleak <-- パワード義足: Error内容
+deactivate パワード義足
+EAServer <-- bleak: Error内容
+deactivate bleak
+EAClient <-- EAServer: Error内容
+deactivate EAServer
+EAClient -> EAClient: Error内容の表示
+deactivate EAClient
+
+== パラメータ保存 ==
+foo -> EAClient: パラメータ保存依頼
+activate EAClient
+EAClient -> EAClient: 現在表示されている値を取得する
+EAClient -> output.json: 内容の保存
+EAClient --> foo: output.jsonのダウンロード
+deactivate EAClient
+
+== パラメータ読み込み ==
+foo -> EAClient: パラメータ読み込み依頼
+activate EAClient
+foo --> EAClient: output.jsonのインポート
+EAClient -> EAClient: 現在表示されている値を更新する
+deactivate EAClient
+
+== デバイス切断 ==
+foo -> EAClient: 切断要求
+note left: 未実装
+activate EAClient
+EAClient -> EAServer: 切断要求
+activate EAServer
+EAServer -> bleak: 切断要求
+activate bleak
+bleak -> パワード義足: 切断要求
+activate パワード義足
+パワード義足 --> bleak: 切断OK
+deactivate パワード義足
+bleak --> EAServer: 切断OK
+deactivate bleak
+EAServer --> EAClient: 切断OK
+deactivate EAServer
+deactivate EAClient
+
+== ファームウェアアップデート ==
+foo -> EAClient: ファームウェアアップデート要求
+note left: 未実装
+activate EAClient
+foo -> EAClient: 新ファームウェアバイナリファイル
+EAClient -> EAServer: ファームウェアアップデート要求
+deactivate EAClient
+EAServer -> bleak: ファームウェアアップデート要求
+activate bleak
+bleak -> パワード義足: ファームウェアアップデート準備開始
+activate パワード義足
+パワード義足 --> bleak: アップデート準備完了
+deactivate パワード義足
+bleak -> パワード義足: 新ファームウェアバイナリデータ送り込み
+パワード義足 --> bleak: データ受領完了
+activate パワード義足
+パワード義足 -> パワード義足: ファームウェアアップデート開始
+パワード義足 -> パワード義足: ファームウェア再起動
+deactivate パワード義足
+deactivate bleak
+EAClient -> EAServer: ファームウェアバージョンの確認(ポーリングで確認する)
+activate EAClient
+activate EAServer
+EAServer -> bleak: ファームウェアバージョン取得依頼
+activate bleak
+bleak -> パワード義足: ファームウェアバージョン取得依頼
+activate パワード義足
+パワード義足 --> bleak: ファームウェアバージョン
+deactivate パワード義足
+bleak --> EAServer: ファームウェアバージョン
+deactivate bleak
+EAServer --> EAClient: ファームウェアバージョン
+deactivate EAServer
+EAClient -> EAClient: ファームウェアバージョンの確認
+deactivate EAClient
+@enduml

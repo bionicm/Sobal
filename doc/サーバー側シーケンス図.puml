@@ -1,0 +1,218 @@
+@startuml
+title EngineerApplication処理フロー(正常系)
+
+== パワード義足一覧取得(正常系) ==
+EAClient -> Route : パワード義足一覧取得
+activate EAClient
+activate Route
+Route -> DeviceFacade : パワード義足一覧取得
+activate DeviceFacade
+DeviceFacade -> DeviceFacade : request check
+DeviceFacade -> DeviceService  : パワード義足一覧取得
+activate DeviceService
+DeviceService -> BleContainer : 周辺BLEデバイス一覧取得
+activate BleContainer
+BleContainer -> DeviceService : 周辺BLEデバイス一覧の返却
+deactivate BleContainer
+DeviceService -> DeviceService : フィルタリング
+DeviceService -> DeviceFacade : パワード義足一覧を返却
+deactivate DeviceService
+DeviceFacade -> Route : json形式で返却
+deactivate DeviceFacade
+Route -> EAClient : jsonの返却
+deactivate Route
+deactivate EAClient
+
+== パラメータ値取得(正常系) ==
+EAClient -> Route : パラメータ値取得
+activate EAClient
+activate Route
+Route -> DeviceFacade : パラメータ値取得
+activate DeviceFacade
+DeviceFacade -> DeviceFacade : request check
+DeviceFacade -> ConverterUtil : 書き込むデータをbytes型に変換
+activate ConverterUtil
+ConverterUtil -> DeviceFacade : バイトデータの返却
+deactivate ConverterUtil
+DeviceFacade -> DeviceService : パラメータ値取得
+activate DeviceService
+DeviceService -> BleContainer : パラメータアドレス書き込み
+activate BleContainer
+BleContainer -> BleContainer : BleakClientの取得
+BleContainer -> パワード義足 : ParamService.Write(READADDR+addr)
+activate パワード義足
+パワード義足 -> BleContainer : OK
+deactivate パワード義足
+BleContainer -> DeviceService : OK
+deactivate BleContainer
+DeviceService -> BleContainer : パラメータ値取得
+activate BleContainer
+BleContainer -> BleContainer : BleakClientの取得
+BleContainer -> パワード義足 : ParamService.Read
+activate パワード義足
+パワード義足 -> BleContainer : read response
+deactivate パワード義足
+BleContainer -> DeviceService : read response
+deactivate BleContainer
+DeviceService -> DeviceService : read response check
+DeviceService -> DeviceFacade : read response
+deactivate DeviceService
+DeviceFacade -> ConverterUtil : read responseをuint16,float型に変換
+activate ConverterUtil
+ConverterUtil -> DeviceFacade : データの返却
+deactivate ConverterUtil
+DeviceFacade -> Route : json形式で返却
+deactivate DeviceFacade
+Route -> EAClient : jsonの返却
+deactivate Route
+deactivate EAClient
+
+== パラメータ値一括更新(正常系) ==
+EAClient -> Route : パラメータ値一括更新
+activate EAClient
+activate Route
+Route -> DeviceFacade : パラメータ値一括更新
+activate DeviceFacade
+DeviceFacade -> DeviceFacade : request check
+DeviceFacade -> DeviceService : パラメータ値一括更新
+activate DeviceService
+loop パラメータ値一括更新
+DeviceService -> ConverterUtil : 書き込むデータをbytes型に変換
+activate ConverterUtil
+ConverterUtil -> DeviceService : バイトデータの返却
+deactivate ConverterUtil
+DeviceService -> BleContainer : パラメータ値更新
+activate BleContainer
+BleContainer -> BleContainer : BleakClientの取得
+BleContainer -> パワード義足 : ParamService.Write(addr+data)
+activate パワード義足
+パワード義足 -> BleContainer : OK
+deactivate パワード義足
+BleContainer -> DeviceService : OK
+deactivate BleContainer
+end
+DeviceService -> BleContainer : UpdateRequest
+activate BleContainer
+BleContainer -> パワード義足 : Write(UPREQADDR, 0x01)
+activate パワード義足
+パワード義足 -> BleContainer : OK
+deactivate パワード義足
+BleContainer -> DeviceService : OK
+deactivate BleContainer
+DeviceService -> DeviceFacade : OK
+deactivate DeviceService
+DeviceFacade -> Route : OK
+deactivate DeviceFacade
+Route -> EAClient : OK
+deactivate EAClient
+deactivate Route
+
+== ステータス取得 / モード取得(正常系) ==
+EAClient -> Route : モード取得
+activate EAClient
+activate Route
+Route -> DeviceFacade : モード取得
+activate DeviceFacade
+DeviceFacade -> DeviceFacade : request check
+DeviceFacade -> DeviceService : モード取得
+activate DeviceService
+DeviceService -> BleContainer : モード取得
+activate BleContainer
+BleContainer -> BleContainer : BleakClientの取得
+BleContainer -> パワード義足 : Read
+activate パワード義足
+パワード義足 -> BleContainer : read response
+deactivate パワード義足
+BleContainer -> DeviceService : read response
+deactivate BleContainer
+DeviceService -> DeviceFacade : read response
+deactivate DeviceService
+DeviceFacade -> DeviceFacade : read response check
+DeviceFacade -> ConverterUtil : read responseをfloat型(ステータス取得) / uint16型(モード取得)に変換
+activate ConverterUtil
+ConverterUtil -> DeviceFacade : データの返却
+deactivate ConverterUtil
+DeviceFacade -> Route : json形式で返却
+deactivate DeviceFacade
+Route -> EAClient : jsonの返却
+deactivate Route
+deactivate EAClient
+
+== モード更新(正常系) ==
+EAClient -> Route : モード更新
+activate EAClient
+activate Route
+Route -> DeviceFacade : モード更新
+activate DeviceFacade
+DeviceFacade -> DeviceFacade : request check
+DeviceFacade -> ConverterUtil : 書き込むデータをbytes型に変換
+activate ConverterUtil
+ConverterUtil -> DeviceFacade : バイトデータの返却
+deactivate ConverterUtil
+DeviceFacade -> DeviceService : モード更新
+activate DeviceService
+DeviceService -> BleContainer : モード更新
+activate BleContainer
+BleContainer -> BleContainer : BleakClientの取得
+BleContainer -> パワード義足 : Write
+activate パワード義足
+パワード義足 -> BleContainer : OK
+deactivate パワード義足
+BleContainer -> DeviceService : OK
+deactivate BleContainer
+DeviceService -> DeviceFacade : OK
+deactivate DeviceService
+DeviceFacade -> Route : OK
+deactivate DeviceFacade
+Route -> EAClient : OK
+deactivate Route
+deactivate EAClient
+
+== パラメータ値エラーチェック(正常系) ==
+EAClient -> Route : パラメータ値エラーチェック
+activate EAClient
+activate Route
+Route -> DeviceFacade : パラメータ値エラーチェック
+activate DeviceFacade
+DeviceFacade -> DeviceFacade : request check
+DeviceFacade -> DeviceService : パラメータ値エラーチェック
+activate DeviceService
+loop 8回または\xff\xff(0xFFFF)を取得するまで
+DeviceService -> BleContainer : エラー確認用アドレス書き込み
+activate BleContainer
+BleContainer -> BleContainer : BleakClientの取得
+BleContainer -> パワード義足 : ParamService.Write(READADDR+ERRPARAMADDR)
+activate パワード義足
+パワード義足 -> BleContainer : OK
+deactivate パワード義足
+BleContainer -> DeviceService : OK
+deactivate BleContainer
+DeviceService -> BleContainer : エラーアドレス読み込み
+activate BleContainer
+BleContainer -> BleContainer : BleakClientの取得
+BleContainer -> パワード義足 : ParamService.Read
+activate パワード義足
+パワード義足 -> BleContainer : read response
+deactivate パワード義足
+BleContainer -> DeviceService : read response
+deactivate BleContainer
+DeviceService -> DeviceService : read response check
+alt read response == \xff\xff
+DeviceService -> DeviceService : ループを抜ける
+end
+end
+DeviceService -> DeviceFacade : read response
+deactivate DeviceService
+loop 最大8回
+DeviceFacade -> ConverterUtil : read responseをuint16に変換
+activate ConverterUtil
+ConverterUtil -> DeviceFacade : データの返却
+deactivate ConverterUtil
+end
+DeviceFacade -> Route : json形式で返却
+deactivate DeviceFacade
+Route -> EAClient : jsonの返却
+deactivate Route
+deactivate EAClient
+
+@enduml
