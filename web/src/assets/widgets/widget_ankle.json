@@ -1,83 +1,33 @@
 {
     "ParamService": {
-        "readUuid": "",
-        "writeUuid": "",
+        "readUuid": "0000fff2-0000-1000-8000-00805f9b34fb",
+        "writeUuid": "0000fff1-0000-1000-8000-00805f9b34fb",
         "groups": [
             {
                 "grouplabel": "group1",
                 "params": [
                     {
-                        "paramaddress": "0x0000",
+                        "paramaddress": "0x0aaa",
                         "paramlabel": "param1",
                         "widgettype": {
                             "type": "textbox",
-                            "default": 0,
-                            "min": 0, 
-                            "max": 100,
-                            "unit": "m"
+                            "default": 1.0
                         }
                     },
                     {
-                        "paramaddress": "0x0001",
+                        "paramaddress": "0x0bbb",
                         "paramlabel": "param2",
                         "widgettype": {
-                            "type": "slider",
-                            "default": 5,
-                            "min": 0,
-                            "max": 10,
-                            "resolution": 3,
-                            "unit": "Kg"
+                            "type": "textbox",
+                            "default": 0.0
                         }
                     },
                     {
-                        "paramaddress": "0x0002",
+                        "paramaddress": "0x0ccc",
                         "paramlabel": "param3",
                         "widgettype": {
-                            "type": "combobox",
-                            "default": 1,
-                            "option": [
-                                {"name": "name1", "value": 1},
-                                {"name": "name2", "value": 2}
-                            ]
-                        }
-                    }
-                ]
-            },
-            {
-                "grouplabel": "group2",
-                "params": [
-                    {
-                        "paramaddress": "0x0003",
-                        "paramlabel": "param4",
-                        "widgettype": {
                             "type": "textbox",
-                            "default": 0,
-                            "min": 0, 
-                            "max": 10,
-                            "resolution": 0.1
-                        }
-                    },
-                    {
-                        "paramaddress": "0x0004",
-                        "paramlabel": "param5",
-                        "widgettype": {
-                            "type": "slider",
-                            "default": 50,
-                            "min": 0,
-                            "max": 1000,
-                            "resolution": 10
-                        }
-                    },
-                    {
-                        "paramaddress": "0x0005",
-                        "paramlabel": "param6",
-                        "widgettype": {
-                            "type": "combobox",
-                            "default": 1,
-                            "option": [
-                                {"name": "value1", "value": 1},
-                                {"name": "value2", "value": 2}
-                            ]
+                            "default": -3.14
                         }
                     }
                 ]
@@ -85,10 +35,10 @@
         ]
     },
     "ModeService": {
-        "targetUuid": "",
+        "targetUuid": "0000fff5-0000-1000-8000-00805f9b34fb",
         "params": [
           {
-            "uuid": "",
+            "uuid": "0000fff4-0000-1000-8000-00805f9b34fb",
             "paramlabel": "CurrentMode",
             "widgettype": {
                 "type": "readonly",
@@ -109,36 +59,12 @@
     "StatusService": {
         "params": [
           {
-            "uuid": "",
+            "uuid": "0000fff4-0000-1000-8000-00805f9b34fb",
             "paramlabel": "BatteryRemaining",
             "widgettype": {
               "type": "readonly",
               "decimalplaces": 0,
               "unit": "%"
-            }
-          },
-          {
-            "uuid": "",
-            "paramlabel": "MotorTemperature",
-            "widgettype": {
-              "type": "readonly",
-              "decimalplaces": 1,
-              "unit": "℃"
-            }
-          },
-          {
-            "uuid": "",
-            "paramlabel": "TotalOperatingTime",
-            "widgettype": {
-              "type": "readonly"
-            }
-          },
-          {
-            "uuid": "",
-            "paramlabel": "TotalRotation",
-            "widgettype": {
-              "type": "readonly",
-              "decimalplaces": 0
             }
           }
         ]
