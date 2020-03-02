@@ -27,7 +27,7 @@ class DeviceService:
         return filterd_devices
 
     async def get_device_param(self, address, write_uuid, read_uuid, param_address_bytes):
-        read_address_bytes = self.__converter.to_2bytes(consts.READ_ADDRESS) + param_address_bytes
+        read_address_bytes = self.__converter.to_2bytes(consts.READ_ADDRESS) + b'\x00\x00' + param_address_bytes
         try:
             LoggerUtil().info(f'write to get parameter. data={read_address_bytes}, uuid={write_uuid}')
             await self.__ble.write(address, write_uuid, read_address_bytes)
@@ -73,7 +73,7 @@ class DeviceService:
         read_address = self.__converter.to_2bytes(consts.READ_ADDRESS)
         no_error = self.__converter.to_2bytes(consts.NO_ERROR)
         for error_param_address in consts.ERROR_PARAMETER_ADDRESSES:
-            read_error_address = read_address + self.__converter.to_2bytes(error_param_address)
+            read_error_address = read_address + b'\x00\x00' + self.__converter.to_2bytes(error_param_address)
 
             try:
                 LoggerUtil().info(f'write to get error address. data={read_error_address}, uuid={write_uuid}')
@@ -136,7 +136,7 @@ class DeviceService:
 
         # update request.
         try:
-            update_request = self.__converter.to_2bytes(consts.UPDATE_REQUEST_ADDRESS) + self.__converter.to_bytes(consts.UPDATE_REQUEST_VALUE)
+            update_request = self.__converter.to_2bytes(consts.UPDATE_REQUEST_ADDRESS) + b'\x00\x00\x00' + self.__converter.to_bytes(consts.UPDATE_REQUEST_VALUE)
             LoggerUtil().info(f'update request. data={update_request}, uuid={write_uuid}')
             await self.__ble.write(address, write_uuid, update_request)
             LoggerUtil().info(f'update request successful. data={update_request}, uuid={write_uuid}')
